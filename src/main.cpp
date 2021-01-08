@@ -4,6 +4,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <regex>
 
 #if defined(__cplusplus) && __cplusplus >= 201703L && defined(__has_include)
 #if __has_include(<filesystem>)
@@ -42,13 +43,15 @@ public:
             fmt::print("input file= {0}\n", logFile);
             inf->open(logFile, std::ios::in);
             std::string line;
+            std::regex reg("^(\\s)[^\x21-\x7E](\\[)(\\d)m");
 
             while (std::getline(*inf, line)) {
                 if (std::string::npos == line.find("error:")) {
                     continue;
                 }
                 std::vector<std::string> v = split(line, ":");
-                errDic.push_back(err_msg_t(v[1], std::atoi(v[2].c_str())));
+                errDic.push_back(err_msg_t(std::regex_replace(v[1], reg, ""),
+                                           std::atoi(v[2].c_str())));
             }
             fmt::print("total error={0}\n", total_error = errDic.size());
         } else {
@@ -77,8 +80,9 @@ public:
             fmt::print("qfix: build successful\n");
             return;
         }
-        for_each(errDic.begin(), errDic.end(), [](err_msg_t fp) {
-            fmt::print("{0} +{1}\n", std::get<0>(fp), std::get<1>(fp));
+        auto idx = 0;
+        for_each(errDic.begin(), errDic.end(), [&idx](err_msg_t fp) {
+            fmt::print("[{0}]{1} +{2}\n", idx++, std::get<0>(fp), std::get<1>(fp));
         });
         fmt::print("please choose:\n");
         auto choose = 0;
@@ -87,9 +91,10 @@ public:
             fmt::print("input out of range\n");
             return;
         }
-        system(fmt::format("vim {0} +{1}", std::get<0>(errDic[choose]),
-                           std::get<1>(errDic[choose]))
-               .c_str());
+        std::string cmd = fmt::format("vim {0} +{1}",
+                                      std::get<0>(errDic[choose]), std::get<1>(errDic[choose]));
+        fmt::print("{0}\n", cmd.c_str());
+        system(cmd.c_str());
     }
     virtual ~errorRunner() {};
 
