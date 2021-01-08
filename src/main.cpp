@@ -49,9 +49,10 @@ public:
                 if (std::string::npos == line.find("error:")) {
                     continue;
                 }
-                std::vector<std::string> v = split(line, ":");
-                errDic.push_back(err_msg_t(std::regex_replace(v[1], reg, ""),
-                                           std::atoi(v[2].c_str())));
+                std::vector<std::string> s = split(line, "error:");
+                std::vector<std::string> v = split(s[1], ":");
+                errDic.push_back(err_msg_t(std::regex_replace(v[0], reg, ""),
+                                           std::atoi(v[1].c_str())));
             }
             fmt::print("total error={0}\n", total_error = errDic.size());
         } else {
