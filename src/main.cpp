@@ -43,22 +43,49 @@ public:
             fmt::print("input file= {0}\n", logFile);
             inf->open(logFile, std::ios::in);
             std::string line;
-            std::regex reg("^(\\s)[^\x21-\x7E](\\[)(\\d)m");
 
             while (std::getline(*inf, line)) {
                 if (std::string::npos == line.find("error:")) {
                     continue;
                 }
-                std::vector<std::string> s = split(line, "error:");
-                std::vector<std::string> v = split(s[1], ":");
-                errDic.push_back(err_msg_t(std::regex_replace(v[0], reg, ""),
-                                           std::atoi(v[1].c_str())));
+                std::string fname;
+                int fline;
+                if(get_fileName_lineNumber(line, fname, fline)) {
+                    errDic.push_back(err_msg_t(fname, fline));
+                }
             }
             fmt::print("total error={0}\n", total_error = errDic.size());
         } else {
             fmt::print("file {0} not exist\n", logFile);
         }
     }
+
+    bool get_fileName_lineNumber(std::string in, std::string & fname, int & fline)
+    {
+        std::string val;
+
+        std::regex regSrip("^(\\s)[^\x21-\x7E](\\[)(\\d)m");
+        std::regex regValid(":(\\d{1,9}):(\\d{1,9}):");
+
+        std::vector<std::string> s = split(in, "error:");
+        bool ret1 = std::regex_search(s[0], regValid);
+        bool ret2 = std::regex_search(s[1], regValid);
+
+        fmt::print("0={0}\n1={1}\nret1={2} ret2={3}\n", s[0], s[1], ret1, ret2);
+        if(ret1) {
+            val = s[0];
+        } else if(ret2) {
+            val = s[1];
+        } else {
+            return false;
+        }
+
+        std::vector<std::string> v = split(val, ":");
+        fname = std::regex_replace(v[0], regSrip, ""),
+        fline = atoi(v[1].c_str());
+        return true;
+    }
+
     std::vector<std::string> split(std::string str, std::string pattern)
     {
         std::string::size_type pos;
@@ -75,6 +102,7 @@ public:
         }
         return result;
     }
+
     void run(void)
     {
         if (0 == total_error) {
