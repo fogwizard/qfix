@@ -62,16 +62,19 @@ public:
 
     bool get_fileName_lineNumber(std::string in, std::string & fname, int & fline)
     {
-        std::string val;
 
         std::regex regSrip("^(\\s)[^\x21-\x7E](\\[)(\\d)m");
         std::regex regValid(":(\\d{1,9}):(\\d{1,9}):");
 
         std::vector<std::string> s = split(in, "error:");
+	if (s.size() < 2) {
+            return false;
+        }
+
         bool ret1 = std::regex_search(s[0], regValid);
         bool ret2 = std::regex_search(s[1], regValid);
+        std::string val;
 
-        fmt::print("0={0}\n1={1}\nret1={2} ret2={3}\n", s[0], s[1], ret1, ret2);
         if(ret1) {
             val = s[0];
         } else if(ret2) {
