@@ -94,7 +94,7 @@ public:
         std::string::size_type pos;
         std::vector<std::string> result;
         str += pattern; //??????????
-        int size = str.size();
+        unsigned int size = str.size();
         for (int i = 0; i < size; i++) {
             pos = str.find(pattern, i);
             if (pos < size) {
