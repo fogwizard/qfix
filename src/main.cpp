@@ -95,7 +95,7 @@ public:
         std::vector<std::string> result;
         str += pattern; //??????????
         unsigned int size = str.size();
-        for (int i = 0; i < size; i++) {
+        for (unsigned int i = 0; i < size; i++) {
             pos = str.find(pattern, i);
             if (pos < size) {
                 std::string s = str.substr(i, pos - i);
@@ -119,7 +119,7 @@ public:
         fmt::print("please choose:\n");
         auto choose = 0;
         std::cin >> choose;
-        if (choose > errDic.size()) {
+        if (static_cast<unsigned int >(choose) > errDic.size()) {
             fmt::print("input out of range\n");
             return;
         }
