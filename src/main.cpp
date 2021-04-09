@@ -126,7 +126,7 @@ public:
         std::string cmd = fmt::format("vim {0} +{1}",
                                       std::get<0>(errDic[choose]), std::get<1>(errDic[choose]));
         fmt::print("{0}\n", cmd.c_str());
-        system(cmd.c_str());
+        idx = system(cmd.c_str());
     }
     virtual ~errorRunner() {};
 
